@@ -1,10 +1,11 @@
-You are an expert career coach and resume strategist with 15+ years of experience
+You are an expert career coach, resume strategist, and professional editor with 15+ years of experience
 hiring across tech, finance, and consulting.
 
 Analyze the following resume and return a structured JSON response with these exact keys:
 
 {{
   "overall_score": <int 0-100>,
+  "ats_readiness_score": <int 0-100>,
   "summary": "<2-sentence overall impression>",
   "strengths": ["<strength 1>", "<strength 2>", ...],
   "weaknesses": ["<weakness 1>", "<weakness 2>", ...],
@@ -14,10 +15,54 @@ Analyze the following resume and return a structured JSON response with these ex
     "soft": ["<skill>", ...]
   }},
   "quantification_gaps": ["<bullet that lacks metrics, e.g., 'Improved system performance'>"],
-  "action_verb_issues": ["<weak verb usage, e.g., 'Was responsible for...'"],
+  "action_verb_issues": [
+    {{
+      "original": "<the weak phrase as written in resume>",
+      "issue": "<why it's weak>",
+      "suggested": "<improved version>"
+    }}
+  ],
   "formatting_issues": ["<e.g., 'Inconsistent date formats'>"],
+  "grammar_and_language": [
+    {{
+      "original": "<exact text from resume with the error>",
+      "issue": "<grammar/spelling/punctuation/clarity problem>",
+      "corrected": "<corrected version of the text>"
+    }}
+  ],
+  "consistency_issues": [
+    {{
+      "sections_involved": "<e.g., 'Skills section vs. Traffic Prediction project'>",
+      "issue": "<describe the contradiction, e.g., 'Skills lists TensorFlow but project uses PyTorch'>",
+      "suggestion": "<how to resolve it>"
+    }}
+  ],
+  "ats_readiness": {{
+    "score_breakdown": "<explain how the ATS readiness score was calculated>",
+    "risks": ["<e.g., 'Uses tables or columns that ATS may not parse'>"],
+    "suggestions": ["<specific fix to improve ATS compatibility>"]
+  }},
   "top_3_improvements": ["<highest-impact fix 1>", "<fix 2>", "<fix 3>"]
 }}
+
+ATS readiness scoring criteria (score WITHOUT a job description):
+- Section structure (30%): Are standard sections present (Summary, Experience, Education, Skills)?
+- Formatting safety (25%): No tables, text boxes, images, headers/footers with key info?
+- Action verbs & quantification (25%): Are bullet points using strong verbs with metrics?
+- Grammar & clarity (20%): Is the language professional, error-free, and concise?
+
+CRITICAL CHECKS — DO NOT SKIP:
+
+1. **Internal consistency**: Cross-reference ALL sections against each other. Be EXTREMELY precise — only flag REAL contradictions:
+   - Before flagging a technology mismatch, VERIFY that the technology is genuinely ABSENT from the Skills section. If Skills lists "TensorFlow, PyTorch" and a project uses TensorFlow, that is NOT a mismatch — do NOT flag it.
+   - Only flag when a project uses a technology that is completely MISSING from the Skills section, OR when Skills claims a technology that appears NOWHERE in Projects/Experience.
+   - Check job titles, dates, and company names for inconsistencies if mentioned in multiple places.
+   - Check proficiency level claims vs. actual usage depth.
+   - If there are NO real consistency issues, return an empty array: "consistency_issues": []. Do NOT fabricate issues.
+
+3. **Grammar & language**: Find ALL grammar, spelling, punctuation, tense inconsistency, and awkward phrasing issues. Quote the EXACT text from the resume so the user can locate and fix each issue.
+
+4. **Action verb issues**: Quote the EXACT weak phrase from the resume and provide a stronger rewrite.
 
 Return ONLY valid JSON. No preamble or markdown fences.
 

@@ -12,7 +12,7 @@ env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="groq/compound-mini",
     temperature=0.2,
     max_tokens=2048,
     groq_api_key=os.getenv("GROQ_API_KEY"),
@@ -20,7 +20,7 @@ llm = ChatGroq(
 
 # Separate LLM instance with higher temperature for creative rewriting
 llm_creative = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="groq/compound-mini",
     temperature=0.5,
     max_tokens=4096,
     groq_api_key=os.getenv("GROQ_API_KEY"),
@@ -35,9 +35,13 @@ def _load_prompt(filename: str) -> str:
 def _clean_json_response(text: str) -> str:
     """Strip markdown fences and whitespace from LLM JSON responses."""
     text = text.strip()
-    # Remove ```json ... ``` or ``` ... ``` wrappers
-    text = re.sub(r'^```(?:json)?\s*\n?', '', text)
-    text = re.sub(r'\n?```\s*$', '', text)
+    
+    start_idx = text.find('{')
+    end_idx = text.rfind('}')
+    
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        text = text[start_idx:end_idx+1]
+        
     return text.strip()
 
 
